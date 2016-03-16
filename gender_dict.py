@@ -1,6 +1,6 @@
 gender = {
-  'fakhir': 'male', 'Amina': 'female', 'telenor': 'undefined', 'shahid': 'male', 'talkshalk': 'undefined', 'Ikram': 'male',
-  'Pakistan': 'undefined', 'Raja': 'male', 'Pome': 'male', 'djuice': 'undefined', 'Zikriya': 'male', 'djuice': 'undefined',
-  'Easypesa': 'undefined', 'qaswar': 'male', 'shahjehan': 'male', 'shoaib': 'male', 'rana': 'male', 'abrar': 'male', 'allahdad': 'male',
-  
+  'fakhir': 'male', 'Amina': 'female', 'telenor': 'undefined', 'shahid': 'male', 'talkshalk': 'undefined', 'ikram': 'male',
+  'pakistan': 'undefined', 'raja': 'male', 'pome': 'male', 'djuice': 'undefined', 'zikriya': 'male', 'djuice': 'undefined',
+  'easypesa': 'undefined', 'qaswar': 'male', 'shahjehan': 'male', 'shoaib': 'male', 'rana': 'male', 'abrar': 'male', 'allahdad': 'male',
+  'mushtaq': 'male', 'shehzada': 'male', 'dawoodshah': 'male', 'zarnain': 'male', 'afnan': 'male'
 }
