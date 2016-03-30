@@ -3,5 +3,6 @@ gender = {
   'pakistan': 'undefined', 'raja': 'male', 'pome': 'male', 'djuice': 'undefined', 'zikriya': 'male', 'djuice': 'undefined',
   'easypesa': 'undefined', 'qaswar': 'male', 'shahjehan': 'male', 'shoaib': 'male', 'rana': 'male', 'abrar': 'male', 'allahdad': 'male',
   'mushtaq': 'male', 'shehzada': 'male', 'dawoodshah': 'male', 'zarnain': 'male', 'afnan': 'male', 'easypaisa': 'undefined', 'zia': 'male',
-  
+  'shaam': 'male', 'bigra': 'male', 'arsam': 'male', 'engr': 'male', 'inzamam': 'male', 'AR': 'male', 'panjatan': 'undefined', 
+  'panjtan': 'undefined', 'kami': 'male', 'jinsar': 'male',
 }
