@@ -5,5 +5,6 @@ gender = {
   'mushtaq': 'male', 'shehzada': 'male', 'dawoodshah': 'male', 'zarnain': 'male', 'afnan': 'male', 'easypaisa': 'undefined', 'zia': 'male',
   'shaam': 'male', 'bigra': 'male', 'arsam': 'male', 'engr': 'male', 'inzamam': 'male', 'AR': 'male', 'panjatan': 'undefined', 
   'panjtan': 'undefined', 'kami': 'male', 'jinsar': 'male', 'ghamgin': 'male', 'ghamgeen': 'male', 'joni': 'male', 'janzeb': 'male', 
-  'sheikhzada': 'male', 'star': 'male', 
+  'sheikhzada': 'male', 'star': 'male', 'ipl': 'undefined', 'ary': 'undefined', 'tt': 'undefined', 'f': 'undefined', 'nge': 'undefined',
+  'jutt': 'male', 'suhana': 'male', 'snl': 'undefined', 'haroonleo': 'male', 'zulfqar': 'male', 
 }
