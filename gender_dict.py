@@ -7,5 +7,12 @@ gender = {
   'panjtan': 'undefined', 'kami': 'male', 'jinsar': 'male', 'ghamgin': 'male', 'ghamgeen': 'male', 'joni': 'male', 'janzeb': 'male', 
   'sheikhzada': 'male', 'star': 'male', 'ipl': 'undefined', 'ary': 'undefined', 'tt': 'undefined', 'f': 'undefined', 'nge': 'undefined',
   'jutt': 'male', 'suhana': 'male', 'snl': 'undefined', 'haroonleo': 'male', 'zulfqar': 'male', 'telecom': 'undefined',
-  'marketing': 'undefined', 'pinzoo': 'undefined', 'free': 'unidefined', 
+  'marketing': 'undefined', 'pinzoo': 'undefined', 'free': 'unidefined', 'newspaper': 'undefined', 'fata': 'undefined',
+  'innenriks': 'undefined', 'telenorinnews': 'undefined', 'sks': 'undefined', 'king': 'male', 'kingkashif': 'male', 'online': 'undefined',
+  'telecom': 'undefined', 'national': 'undefined', 'city': 'undefined', 'hamaraqueta': 'undefined', 'pyara': 'undefined',
+  'newsbuzz': 'undefined', 'malumati': 'undefined', 'lala': 'male', 'paknetwork': 'undefined', 'fan': 'undefined', 'baadshaah': 'male',
+  'byskog': 'undefined', 'dhamaka': 'undefined', 'dhamakaweek': 'undefined', 'dailypeshawar': 'undefined', 'student': 'undefined',
+  'suchkhabar': 'undefined', 'medianama.com': 'undefined', 'liveurdu': 'undefined', 'singh': 'undefined', 'exchange': 'undefined',
+  'cricket': 'undefined', 'pak': 'undefined', 'live': 'undefined', 'usefulsms': 'undefined', 'shabqadar': 'undefined', 'd': 'undefined',
+  'poland': 'undefined', 'mwk': 'undefined', 
 }
