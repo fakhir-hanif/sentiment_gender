@@ -14,5 +14,6 @@ gender = {
   'byskog': 'undefined', 'dhamaka': 'undefined', 'dhamakaweek': 'undefined', 'dailypeshawar': 'undefined', 'student': 'undefined',
   'suchkhabar': 'undefined', 'medianama.com': 'undefined', 'liveurdu': 'undefined', 'singh': 'undefined', 'exchange': 'undefined',
   'cricket': 'undefined', 'pak': 'undefined', 'live': 'undefined', 'usefulsms': 'undefined', 'shabqadar': 'undefined', 'd': 'undefined',
-  'poland': 'undefined', 'mwk': 'undefined', 
+  'poland': 'undefined', 'mwk': 'undefined', 'daily': 'undefined', 'bookcomplaint': 'undefined', 'bookcomplaints': 'undefined',
+  'karandaaz': 'undefined', '
 }
