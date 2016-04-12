@@ -8,6 +8,7 @@ from datetime import datetime
 import json
 import requests
 from hammock import Hammock as GendreAPI
+from gender_dict import gender as gender_dict
 
 app = Flask(__name__)
 app.debug = False
@@ -107,18 +108,23 @@ def gender_detection():
 	first_name = request.form.get("first_name", '')
 
 	if not first_name:
-		result.update({'status': False, 'msg': 'Please provide first_name & last_name these are mandatory!'})
+		result.update({'status': False, 'msg': 'Please provide first_name it is mandatory!'})
 		return jsonify(result=result)
 	else:
 		names = first_name.split(' ')
 		print names, "names"
 		for name in names:
-			print name
 			try:
-				gendre = GendreAPI("http://api.namsor.com/onomastics/api/json/gendre")
-				resp = gendre(name, 'a').GET()
-				print "resp", resp
-				gender = resp.json().get('gender', '')
+				if name.lower() not in gender_dict:
+					gendre = GendreAPI("http://api.namsor.com/onomastics/api/json/gendre")
+					resp = gendre(name, 'a').GET()
+					gender = resp.json().get('gender', '')
+				else:
+					print 'else'
+					gender = gender_dict[name.lower()]
+					if gender.lower() != 'male' and gender.lower() != 'female':
+						result.update({'status': True, 'gender': 'Unknown'})
+						break
 				if gender.lower() == 'male' or gender.lower() == 'female':
 					result.update({'status': True, 'gender': gender})
 					break
