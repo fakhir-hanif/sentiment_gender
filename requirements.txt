@@ -1,3 +1,7 @@
 gevent
 flask
 redis
+langid
+goslate
+hammock
+detectlanguage

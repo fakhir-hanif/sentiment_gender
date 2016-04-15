@@ -9,7 +9,14 @@ import json
 import requests
 from hammock import Hammock as GendreAPI
 from gender_dict import gender as gender_dict
+import goslate
+import langid
+import detectlanguage
+from config import API_KEY
+from textblob import TextBlob
 
+
+detectlanguage.configuration.api_key = API_KEY
 app = Flask(__name__)
 app.debug = False
 app.config['MAX_CONTENT_LENGTH'] = (1 << 20) # 1 MB max request size
@@ -104,6 +111,12 @@ def about():
 @app.route('/api/gender/', methods=["POST"])
 @crossdomain(origin='*')
 def gender_detection():
+	"""
+	This method check in the dictionary /gender_dict.py if the name find in it returns it gender and if
+	this dict has no key for that name it checks for the free service to identify the gender.
+	API source code is at
+	:return:
+	"""
 	result = {}
 	first_name = request.form.get("first_name", '')
 
@@ -113,8 +126,9 @@ def gender_detection():
 	else:
 		names = first_name.split(' ')
 		print names, "names"
-		for name in names:
+		for name in names: # Loop will continue until gender detected or it is found in our dict.
 			try:
+				# Check if the gender is in our dictionary
 				if name.lower() not in gender_dict:
 					gendre = GendreAPI("http://api.namsor.com/onomastics/api/json/gendre")
 					resp = gendre(name, 'a').GET()
@@ -132,3 +146,32 @@ def gender_detection():
 				print str(e)
 				result.update({'status': False, 'gender': 'Unknown'})
 		return jsonify(result=result)
+
+@app.route('/api/lang/', methods=["POST"])
+@crossdomain(origin='*')
+def lang_detection():
+	result = {}
+	lang = request.form.get('text', '')
+	gs = goslate.Goslate()  # will use this object in all services.
+	print "first level"
+	# TextBlob free service powered by google
+	try:
+		lang_id = TextBlob(lang).detect_language()  # lang_id = en
+		result.update({'language_id': lang_id, 'language': gs.get_languages()[lang_id]})
+		return jsonify(result=result)
+	except Exception, e:
+		print "language exception", str(e)
+	print "second level"
+	# Paid service, Free 5000 records per day
+	try:
+		lang_id = detectlanguage.detect(lang)
+		# e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
+		result.update({'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]})
+		return jsonify(result=result)
+	except Exception, e:
+		print "Exception in paid service of language = ", str(e)
+	print "3rd level"
+	# langid service, source code = https://github.com/saffsd/langid.py
+	res = langid.classify(lang)
+	result.update({'language_id': res[0], 'language': gs.get_languages()[res[0]]})
+	return jsonify(result=result)
