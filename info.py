@@ -13,12 +13,16 @@ class MyDict(dict):
 
 pos = MyDict()
 neg = MyDict()
+pos2 = MyDict()
+neg2 = MyDict()
 features = set()
 totals = [0, 0]
+totals2 = [0, 0]
 delchars = ''.join(c for c in map(chr, range(128)) if not c.isalnum())
 
 # CDATA_FILE = "countdata.pickle"
 FDATA_FILE = "reduceddata.pickle"
+FDATA_FILE2 = "reduceddata2.pickle"  # for browser data analysis
 
 
 def negate_sequence(text):
@@ -64,6 +68,18 @@ def classify2(text):
     neg_prob = sum(log((neg[word] + 1) / (2 * totals[1])) for word in words)
     return (pos_prob > neg_prob, abs(pos_prob - neg_prob))
 
+
+def classify3(text):
+    """
+    For classification from pretrained data
+    """
+    words = set(word for word in negate_sequence(text) if word in pos2 or word in neg2)
+    if (len(words) == 0): return True, 0
+    # Probability that word occurs in pos documents
+    pos_prob = sum(log((pos2[word] + 1) / (2 * totals[0])) for word in words)
+    neg_prob = sum(log((neg2[word] + 1) / (2 * totals[1])) for word in words)
+    return (pos_prob > neg_prob, abs(pos_prob - neg_prob))
+
 def classify_demo(text):
     words = set(word for word in negate_sequence(text) if word in pos or word in neg)
     if (len(words) == 0): 
@@ -89,6 +105,7 @@ def feature_selection_trials():
 
     if not retrain and os.path.isfile(FDATA_FILE):
         pos, neg, totals = pickle.load(open(FDATA_FILE))
+        pos2, neg2, totals2 = pickle.load(open(FDATA_FILE2))
         return
 
 
