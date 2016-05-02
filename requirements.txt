@@ -5,3 +5,6 @@ langid
 goslate
 hammock
 detectlanguage
+textblob
+Flask-Pymongo
+mongoengine

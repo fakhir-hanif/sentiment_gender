@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 from info import classify2
 from math import e
 from redis import Redis
-from config import STATS_KEY, HOST, RHOST, RPASS, RPORT
+from config import STATS_KEY, HOST, RHOST, RPASS, RPORT, MONGODB_HOST, MONGODB_PORT
 from cors import crossdomain
 from datetime import datetime
 import json
@@ -14,14 +14,21 @@ import langid
 import detectlanguage
 from config import API_KEY
 from textblob import TextBlob
+# from mongokit import Document, Connection
+from flask.ext.pymongo import PyMongo
+from models import Gender
 
 
 detectlanguage.configuration.api_key = API_KEY
 app = Flask(__name__)
+app.config.from_object(__name__)
 app.debug = False
 app.config['MAX_CONTENT_LENGTH'] = (1 << 20) # 1 MB max request size
 #conn = Redis(RHOST, RPORT, password=RPASS)
 sentiment_dict = {'neg': 'Negative', 'pos': 'Positive', 'neutral': 'Neutral'}
+# connect to the database
+# connection = Connection(MONGODB_HOST, MONGODB_PORT)
+db = PyMongo(app)
 
 def percentage_confidence(conf):
 	return 100.0 * e ** conf / (1 + e**conf)
@@ -60,6 +67,13 @@ def get_sentiment_info(text):
 def home():
 	#conn.incr(STATS_KEY + "_hits")
 	return render_template("index.html")
+
+@app.route('/testmongo')
+def fakhir():
+	document = Gender()
+	document.f_name = 'fakhir'
+	document.save()
+	return jsonify(result={'done': True})
 
 @app.route('/api/text/', methods=["POST"])
 @crossdomain(origin='*')
@@ -151,7 +165,7 @@ def gender_detection():
 @crossdomain(origin='*')
 def lang_detection():
 	result = {}
-	lang = request.form.get('text', '')
+	lang = request.form.get('txt', '')
 	gs = goslate.Goslate()  # will use this object in all services.
 	print "first level"
 	# TextBlob free service powered by google
@@ -175,3 +189,15 @@ def lang_detection():
 	res = langid.classify(lang)
 	result.update({'language_id': res[0], 'language': gs.get_languages()[res[0]]})
 	return jsonify(result=result)
+
+
+@app.route('/api/update/gender/', methods=["POST", "GET"])
+@crossdomain(origin='*')
+def gender_update():
+	result = {}
+	first_name = request.form.get('first_name', '')
+	if not first_name:
+		return result.update({'status': False, 'msg': 'Please provide first_name it is mandatory!'})
+	# collection = connection['test'].genders
+	print
+	return result
