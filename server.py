@@ -73,6 +73,7 @@ def home():
 @crossdomain(origin='*')
 def read_api():
 	text = request.form.get("txt", '')
+	text = text.replace('Telenor ', ' ')
 	web = request.form.get('web', False)
 	sentiment, confidence = get_sentiment_info(text, web)
 	result = {"sentiment": sentiment, "confidence": confidence}
