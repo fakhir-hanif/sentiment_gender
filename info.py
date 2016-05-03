@@ -101,6 +101,7 @@ def feature_selection_trials():
     Select top k features. Vary k and plot data
     """
     global pos, neg, totals, features
+    global pos2, neg2, totals2
     retrain = False
 
     if not retrain and os.path.isfile(FDATA_FILE):

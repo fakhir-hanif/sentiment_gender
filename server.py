@@ -31,7 +31,9 @@ def today():
 
 def get_sentiment_info(text, browser=False):
 	#  limited api for 1000 requests/day
+	print browser, 'browser'
 	if browser:
+		print "in if"
 		#  If the api do not respond 200, this part will work
 		flag, confidence = classify3(text)
 		if confidence > 0.5:
@@ -44,13 +46,10 @@ def get_sentiment_info(text, browser=False):
 			response = requests.post('http://text-processing.com/api/sentiment/', data={'text': text})
 		except requests.exceptions.ConnectionError as e:
 			response = False
-		print "fakhir2", response
 		if response and response.status_code == 200:
 			res_dict = json.loads(response.content)
 			print res_dict
 			try:
-				print res_dict['probability']
-				print res_dict['probability'][res_dict['label']]
 				conf = "%.4f" % percentage_confidence(res_dict['probability'][res_dict['label']])
 				sentiment = sentiment_dict[res_dict['label']]
 			except Exception, e:
@@ -144,7 +143,6 @@ def gender_detection():
 					resp = gendre(name, 'a').GET()
 					gender = resp.json().get('gender', '')
 				else:
-					print 'else'
 					gender = gender_dict[name.lower()]
 					if gender.lower() != 'male' and gender.lower() != 'female':
 						result.update({'status': True, 'gender': 'Unknown'})
