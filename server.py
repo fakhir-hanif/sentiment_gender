@@ -160,7 +160,7 @@ def gender_detection():
 @crossdomain(origin='*')
 def lang_detection():
 	result = {}
-	lang = request.form.get('text', '')
+	lang = request.form.get('txt', '')
 	gs = goslate.Goslate()  # will use this object in all services.
 	print "first level"
 	# TextBlob free service powered by google
