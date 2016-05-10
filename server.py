@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, make_response
-from info import classify2
+from info import classify2, classify3
 from math import e
 from redis import Redis
 from config import STATS_KEY, HOST, RHOST, RPASS, RPORT
@@ -10,13 +10,11 @@ import requests
 from hammock import Hammock as GendreAPI
 from gender_dict import gender as gender_dict
 import goslate
-import langid
-import detectlanguage
-from config import API_KEY
-from textblob import TextBlob
+from info import lang_detect_level1
+from info import lang_detect_level2
+from info import lang_detect_level3
 
 
-detectlanguage.configuration.api_key = API_KEY
 app = Flask(__name__)
 app.debug = False
 app.config['MAX_CONTENT_LENGTH'] = (1 << 20) # 1 MB max request size
@@ -29,31 +27,39 @@ def percentage_confidence(conf):
 def today():
 	return datetime.now().strftime('%Y-%m-%d')
 
-def get_sentiment_info(text):
+def get_sentiment_info(text, browser=False):
 	#  limited api for 1000 requests/day
-	try:
-		response = requests.post('http://text-processing.com/api/sentiment/', data={'text': text})
-	except requests.exceptions.ConnectionError as e:
-		response = False
-	print "fakhir2", response
-	if response and response.status_code == 200:
-		res_dict = json.loads(response.content)
-		print res_dict
-		try:
-			print res_dict['probability']
-			print res_dict['probability'][res_dict['label']]
-			conf = "%.4f" % percentage_confidence(res_dict['probability'][res_dict['label']])
-			sentiment = sentiment_dict[res_dict['label']]
-		except Exception, e:
-			print e
-	else:
+	print browser, 'browser'
+	if browser:
+		print "in if"
 		#  If the api do not respond 200, this part will work
-		flag, confidence = classify2(text)
+		flag, confidence = classify3(text)
 		if confidence > 0.5:
 			sentiment = "Positive" if flag else "Negative"
 		else:
 			sentiment = "Neutral"
 		conf = "%.4f" % percentage_confidence(confidence)
+	else:
+		try:
+			response = requests.post('http://text-processing.com/api/sentiment/', data={'text': text})
+		except requests.exceptions.ConnectionError as e:
+			response = False
+		if response and response.status_code == 200:
+			res_dict = json.loads(response.content)
+			print res_dict
+			try:
+				conf = "%.4f" % percentage_confidence(res_dict['probability'][res_dict['label']])
+				sentiment = sentiment_dict[res_dict['label']]
+			except Exception, e:
+				print e
+		else:
+			#  If the api do not respond 200, this part will work
+			flag, confidence = classify2(text)
+			if confidence > 0.5:
+				sentiment = "Positive" if flag else "Negative"
+			else:
+				sentiment = "Neutral"
+			conf = "%.4f" % percentage_confidence(confidence)
 	return (sentiment, conf)
 
 @app.route('/')
@@ -65,7 +71,9 @@ def home():
 @crossdomain(origin='*')
 def read_api():
 	text = request.form.get("txt", '')
-	sentiment, confidence = get_sentiment_info(text)
+	text = text.replace('Telenor ', ' ')
+	web = request.form.get('web', False)
+	sentiment, confidence = get_sentiment_info(text, web)
 	result = {"sentiment": sentiment, "confidence": confidence}
 	#conn.incr(STATS_KEY + "_api_calls")
 	#conn.incr(STATS_KEY + today())
@@ -134,7 +142,6 @@ def gender_detection():
 					resp = gendre(name, 'a').GET()
 					gender = resp.json().get('gender', '')
 				else:
-					print 'else'
 					gender = gender_dict[name.lower()]
 					if gender.lower() != 'male' and gender.lower() != 'female':
 						result.update({'status': True, 'gender': 'Unknown'})
@@ -147,31 +154,27 @@ def gender_detection():
 				result.update({'status': False, 'gender': 'Unknown'})
 		return jsonify(result=result)
 
+
 @app.route('/api/lang/', methods=["POST"])
 @crossdomain(origin='*')
 def lang_detection():
 	result = {}
-	lang = request.form.get('text', '')
+	lang = request.form.get('txt', '')
 	gs = goslate.Goslate()  # will use this object in all services.
 	print "first level"
 	# TextBlob free service powered by google
 	try:
-		lang_id = TextBlob(lang).detect_language()  # lang_id = en
-		result.update({'language_id': lang_id, 'language': gs.get_languages()[lang_id]})
+		result = lang_detect_level1(lang, gs)
 		return jsonify(result=result)
 	except Exception, e:
 		print "language exception", str(e)
 	print "second level"
 	# Paid service, Free 5000 records per day
 	try:
-		lang_id = detectlanguage.detect(lang)
-		# e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-		result.update({'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]})
+		result = lang_detect_level2(lang, gs)
 		return jsonify(result=result)
 	except Exception, e:
 		print "Exception in paid service of language = ", str(e)
 	print "3rd level"
-	# langid service, source code = https://github.com/saffsd/langid.py
-	res = langid.classify(lang)
-	result.update({'language_id': res[0], 'language': gs.get_languages()[res[0]]})
+	result = lang_detect_level3(lang, gs)
 	return jsonify(result=result)
