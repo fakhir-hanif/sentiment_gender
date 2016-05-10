@@ -10,13 +10,11 @@ import requests
 from hammock import Hammock as GendreAPI
 from gender_dict import gender as gender_dict
 import goslate
-import langid
-import detectlanguage
-from config import API_KEY
-from textblob import TextBlob
+from info import lang_detect_level1
+from info import lang_detect_level2
+from info import lang_detect_level3
 
 
-detectlanguage.configuration.api_key = API_KEY
 app = Flask(__name__)
 app.debug = False
 app.config['MAX_CONTENT_LENGTH'] = (1 << 20) # 1 MB max request size
@@ -156,6 +154,7 @@ def gender_detection():
 				result.update({'status': False, 'gender': 'Unknown'})
 		return jsonify(result=result)
 
+
 @app.route('/api/lang/', methods=["POST"])
 @crossdomain(origin='*')
 def lang_detection():
@@ -165,22 +164,17 @@ def lang_detection():
 	print "first level"
 	# TextBlob free service powered by google
 	try:
-		lang_id = TextBlob(lang).detect_language()  # lang_id = en
-		result.update({'language_id': lang_id, 'language': gs.get_languages()[lang_id]})
+		result = lang_detect_level1(lang, gs)
 		return jsonify(result=result)
 	except Exception, e:
 		print "language exception", str(e)
 	print "second level"
 	# Paid service, Free 5000 records per day
 	try:
-		lang_id = detectlanguage.detect(lang)
-		# e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-		result.update({'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]})
+		result = lang_detect_level2(lang, gs)
 		return jsonify(result=result)
 	except Exception, e:
 		print "Exception in paid service of language = ", str(e)
 	print "3rd level"
-	# langid service, source code = https://github.com/saffsd/langid.py
-	res = langid.classify(lang)
-	result.update({'language_id': res[0], 'language': gs.get_languages()[res[0]]})
+	result = lang_detect_level3(lang, gs)
 	return jsonify(result=result)
