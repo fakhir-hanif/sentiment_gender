@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 from info import classify2, classify3
 from math import e
 from redis import Redis
-from config import STATS_KEY, HOST, RHOST, RPASS, RPORT
+from config import STATS_KEY, HOST, RHOST, RPASS, RPORT, LOG_FILE
 from cors import crossdomain
 from datetime import datetime
 import json
@@ -13,6 +13,7 @@ import goslate
 from info import lang_detect_level1
 from info import lang_detect_level2
 from info import lang_detect_level3
+import logging
 
 
 app = Flask(__name__)
@@ -20,6 +21,7 @@ app.debug = False
 app.config['MAX_CONTENT_LENGTH'] = (1 << 20) # 1 MB max request size
 #conn = Redis(RHOST, RPORT, password=RPASS)
 sentiment_dict = {'neg': 'Negative', 'pos': 'Positive', 'neutral': 'Neutral'}
+logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
 def percentage_confidence(conf):
 	return 100.0 * e ** conf / (1 + e**conf)
@@ -29,9 +31,9 @@ def today():
 
 def get_sentiment_info(text, browser=False):
 	#  limited api for 1000 requests/day
-	print browser, 'browser'
+	logging.debug(' browser = ' + str(browser))
 	if browser:
-		print "in if"
+		logging.debug(' in if ')
 		#  If the api do not respond 200, this part will work
 		flag, confidence = classify3(text)
 		if confidence > 0.5:

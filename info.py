@@ -8,6 +8,7 @@ import detectlanguage
 from config import API_KEY
 from textblob import TextBlob
 import langid
+import logging
 
 
 detectlanguage.configuration.api_key = API_KEY
@@ -81,6 +82,7 @@ def classify3(text):
     For classification from pretrained data
     """
     words = set(word for word in negate_sequence(text) if word in pos2 or word in neg2)
+    logging.debug(' words len = ' + str(len(words)))
     if (len(words) == 0): return True, 0
     # Probability that word occurs in pos documents
     pos_prob = sum(log((pos2[word] + 1) / (2 * totals[0])) for word in words)
