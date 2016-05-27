@@ -9,6 +9,11 @@ from config import API_KEY
 from textblob import TextBlob
 import langid
 import logging
+import json
+from pos import pos
+from neg import neg
+from pos2 import pos2
+from neg2 import neg2
 
 
 detectlanguage.configuration.api_key = API_KEY
@@ -19,13 +24,10 @@ class MyDict(dict):
             return self.get(key)
         return 0
 
-pos = MyDict()
-neg = MyDict()
-pos2 = MyDict()
-neg2 = MyDict()
+
 features = set()
-totals = [0, 0]
-totals2 = [0, 0]
+totals = [3321176, 3320100]
+totals2 = [3321176, 3320100]
 delchars = ''.join(c for c in map(chr, range(128)) if not c.isalnum())
 
 # CDATA_FILE = "countdata.pickle"
@@ -109,28 +111,44 @@ def feature_selection_trials():
     """
     Select top k features. Vary k and plot data
     """
-    global pos, neg, totals, features
-    global pos2, neg2, totals2
-    retrain = False
-
-    if not retrain and os.path.isfile(FDATA_FILE):
-        pos, neg, totals = pickle.load(open(FDATA_FILE))
-        pos2, neg2, totals2 = pickle.load(open(FDATA_FILE2))
-        return
+    # global pos, neg, totals, features
+    # global pos2, neg2, totals2
+    # retrain = False
+    #
+    # if not retrain and os.path.isfile(FDATA_FILE):
+    #     pos, neg, totals = pickle.load(open(FDATA_FILE))
+    #     pos2, neg2, totals2 = pickle.load(open(FDATA_FILE2))
+    return
 
 def lang_detect_level1(lang, gs):
     lang_id = TextBlob(lang).detect_language()  # lang_id = en
-    return {'language_id': lang_id, 'language': gs.get_languages()[lang_id]}
+    print lang_id, gs.get_languages()[lang_id]
+    if lang_id in ['hi', 'en', 'ur']:
+        if lang_id == 'hi':
+            lang_id = 'ur'
+        return {'language_id': lang_id, 'language': gs.get_languages()[lang_id]}
+    else:
+        return {}
 
 def lang_detect_level2(lang, gs):
     lang_id = detectlanguage.detect(lang)
     # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-    return {'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]}
+    if lang_id[0]['language'] in ['hi', 'en', 'ur']:
+        if lang_id[0]['language'] == 'hi':
+            lang_id[0]['language'] = 'ur'
+        return {'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]}
+    else:
+        return {}
 
 def lang_detect_level3(lang, gs):
     # langid service, source code = https://github.com/saffsd/langid.py
     res = langid.classify(lang)
-    return {'language_id': res[0], 'language': gs.get_languages()[res[0]]}
+    if res[0] in ['hi', 'en', 'ur']:
+        if res[0] == 'hi':
+            res[0] = 'ur'
+        return {'language_id': res[0], 'language': gs.get_languages()[res[0]]}
+    else:
+        return {}
 
 if __name__ == '__main__':
     feature_selection_trials()

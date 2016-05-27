@@ -31,7 +31,6 @@ def today():
 
 def get_sentiment_info(text, browser=False):
 	#  limited api for 1000 requests/day
-	logging.debug(' browser = ' + str(browser + ' text = ' + str(text)))
 	if browser:
 		logging.debug(' in if ')
 		#  If the api do not respond 200, this part will work
@@ -46,6 +45,7 @@ def get_sentiment_info(text, browser=False):
 			response = requests.post('http://text-processing.com/api/sentiment/', data={'text': text})
 		except requests.exceptions.ConnectionError as e:
 			response = False
+		response = False
 		if response and response.status_code == 200:
 			res_dict = json.loads(response.content)
 			print res_dict
