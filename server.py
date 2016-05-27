@@ -75,7 +75,7 @@ def read_api():
 	text = request.form.get("txt", '')
 	text = text.replace('Telenor ', ' ')
 	web = request.form.get('web', False)
-	sentiment, confidence = get_sentiment_info(text, web)
+	sentiment, confidence = get_sentiment_info(text, browser=web)
 	result = {"sentiment": sentiment, "confidence": confidence}
 	#conn.incr(STATS_KEY + "_api_calls")
 	#conn.incr(STATS_KEY + today())
