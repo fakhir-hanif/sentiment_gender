@@ -31,7 +31,7 @@ def today():
 
 def get_sentiment_info(text, browser=False):
 	#  limited api for 1000 requests/day
-	logging.debug(' browser = ' + str(browser))
+	logging.debug(' browser = ' + str(browser + ' text = ' + str(text)))
 	if browser:
 		logging.debug(' in if ')
 		#  If the api do not respond 200, this part will work
