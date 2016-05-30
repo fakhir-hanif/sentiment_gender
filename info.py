@@ -122,7 +122,6 @@ def feature_selection_trials():
 
 def lang_detect_level1(lang, gs):
     lang_id = TextBlob(lang).detect_language()  # lang_id = en
-    print lang_id, gs.get_languages()[lang_id]
     if lang_id in ['hi', 'en', 'ur']:
         if lang_id == 'hi':
             lang_id = 'ur'

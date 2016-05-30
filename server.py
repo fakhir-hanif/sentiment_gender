@@ -14,6 +14,7 @@ from info import lang_detect_level1
 from info import lang_detect_level2
 from info import lang_detect_level3
 import logging
+import re
 
 
 app = Flask(__name__)
@@ -162,6 +163,10 @@ def gender_detection():
 def lang_detection():
 	result = {}
 	lang = request.form.get('txt', '')
+	# removing hash tags
+	hash_tags = re.findall(r'(?i)\#\w+', lang)
+	text_list = lang.split()
+	lang = ' '.join([i for i in text_list if i not in hash_tags])
 	gs = goslate.Goslate()  # will use this object in all services.
 	print "first level"
 	# TextBlob free service powered by google
