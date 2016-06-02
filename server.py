@@ -164,9 +164,11 @@ def lang_detection():
 	result = {}
 	lang = request.form.get('txt', '')
 	# removing hash tags
-	hash_tags = re.findall(r'(?i)\#\w+', lang)
+	hash_at_tags = re.findall(r'(?i)\#\w+', lang)
+	hash_at_tags += re.findall(r'(?i)\@\w+', lang)
+	print hash_at_tags
 	text_list = lang.split()
-	lang = ' '.join([i for i in text_list if i not in hash_tags])
+	lang = ' '.join([i for i in text_list if i not in hash_at_tags])
 	gs = goslate.Goslate()  # will use this object in all services.
 	print "first level"
 	# TextBlob free service powered by google

@@ -74,6 +74,10 @@ def classify2(text):
     words = set(word for word in negate_sequence(text) if word in pos or word in neg)
     if (len(words) == 0): return True, 0
     # Probability that word occurs in pos documents
+    # for word in words:
+    #     print "p: ", word, ": ", pos[word]
+    #     print "n: ", word, ": ", neg[word]
+    # print words
     pos_prob = sum(log((pos[word] + 1) / (2 * totals[0])) for word in words)
     neg_prob = sum(log((neg[word] + 1) / (2 * totals[1])) for word in words)
     return (pos_prob > neg_prob, abs(pos_prob - neg_prob))
@@ -122,32 +126,23 @@ def feature_selection_trials():
 
 def lang_detect_level1(lang, gs):
     lang_id = TextBlob(lang).detect_language()  # lang_id = en
-    if lang_id in ['hi', 'en', 'ur']:
-        if lang_id == 'hi':
-            lang_id = 'ur'
-        return {'language_id': lang_id, 'language': gs.get_languages()[lang_id]}
-    else:
-        return {}
+    if lang_id == 'hi':
+        lang_id = 'ur'
+    return {'language_id': lang_id, 'language': gs.get_languages()[lang_id]}
 
 def lang_detect_level2(lang, gs):
     lang_id = detectlanguage.detect(lang)
     # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-    if lang_id[0]['language'] in ['hi', 'en', 'ur']:
-        if lang_id[0]['language'] == 'hi':
-            lang_id[0]['language'] = 'ur'
-        return {'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]}
-    else:
-        return {}
+    if lang_id[0]['language'] == 'hi':
+        lang_id[0]['language'] = 'ur'
+    return {'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]}
 
 def lang_detect_level3(lang, gs):
     # langid service, source code = https://github.com/saffsd/langid.py
     res = langid.classify(lang)
-    if res[0] in ['hi', 'en', 'ur']:
-        if res[0] == 'hi':
-            res[0] = 'ur'
-        return {'language_id': res[0], 'language': gs.get_languages()[res[0]]}
-    else:
-        return {}
+    if res[0] == 'hi':
+        res[0] = 'ur'
+    return {'language_id': res[0], 'language': gs.get_languages()[res[0]]}
 
 if __name__ == '__main__':
     feature_selection_trials()
