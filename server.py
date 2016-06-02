@@ -170,20 +170,17 @@ def lang_detection():
 	text_list = lang.split()
 	lang = ' '.join([i for i in text_list if i not in hash_at_tags])
 	gs = goslate.Goslate()  # will use this object in all services.
-	print "first level"
 	# TextBlob free service powered by google
 	try:
 		result = lang_detect_level1(lang, gs)
 		return jsonify(result=result)
 	except Exception, e:
-		print "language exception", str(e)
-	print "second level"
+		logging.debug('Error in level 1' + str(e))
 	# Paid service, Free 5000 records per day
 	try:
 		result = lang_detect_level2(lang, gs)
 		return jsonify(result=result)
 	except Exception, e:
-		print "Exception in paid service of language = ", str(e)
-	print "3rd level"
+		logging.debug('Error in level 2' + str(e))
 	result = lang_detect_level3(lang, gs)
 	return jsonify(result=result)
