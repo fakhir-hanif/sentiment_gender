@@ -15,6 +15,7 @@ from info import lang_detect_level2
 from info import lang_detect_level3
 import logging
 import re
+from textblob import TextBlob
 
 
 app = Flask(__name__)
@@ -30,39 +31,61 @@ def percentage_confidence(conf):
 def today():
 	return datetime.now().strftime('%Y-%m-%d')
 
-def get_sentiment_info(text, browser=False):
-	#  limited api for 1000 requests/day
-	if browser:
-		logging.debug(' in if ')
-		#  If the api do not respond 200, this part will work
-		flag, confidence = classify3(text)
-		if confidence > 0.5:
-			sentiment = "Positive" if flag else "Negative"
-		else:
-			sentiment = "Neutral"
-		conf = "%.4f" % percentage_confidence(confidence)
+def get_sentiment_route(text, web=False):
+	if web == 'web':
+		return get_sentiment_browse(text)
+	elif web == 'facebook':
+		return  get_sentiment_facebook(text)
 	else:
-		try:
-			response = requests.post('http://text-processing.com/api/sentiment/', data={'text': text})
-		except requests.exceptions.ConnectionError as e:
-			response = False
+		return get_sentiment_info(text)
+
+def get_sentiment_browse(text):
+	print "web"
+	logging.debug(' in browser ')
+	flag, confidence = classify3(text)
+	if confidence > 0.5:
+		sentiment = "Positive" if flag else "Negative"
+	else:
+		sentiment = "Neutral"
+	conf = "%.4f" % percentage_confidence(confidence)
+	return (sentiment, conf)
+
+def get_sentiment_facebook(text):
+	print "facebook"
+	logging.debug(' in facebook ')
+	try:
+		response = requests.post('http://text-processing.com/api/sentiment/', data={'text': text})
+	except requests.exceptions.ConnectionError as e:
 		response = False
-		if response and response.status_code == 200:
-			res_dict = json.loads(response.content)
-			print res_dict
-			try:
-				conf = "%.4f" % percentage_confidence(res_dict['probability'][res_dict['label']])
-				sentiment = sentiment_dict[res_dict['label']]
-			except Exception, e:
-				print e
-		else:
-			#  If the api do not respond 200, this part will work
-			flag, confidence = classify2(text)
-			if confidence > 0.5:
-				sentiment = "Positive" if flag else "Negative"
-			else:
-				sentiment = "Neutral"
-			conf = "%.4f" % percentage_confidence(confidence)
+	if response and response.status_code == 200:
+		res_dict = json.loads(response.content)
+		try:
+			conf = "%.4f" % percentage_confidence(res_dict['probability'][res_dict['label']])
+			sentiment = sentiment_dict[res_dict['label']]
+			return (sentiment, conf)
+		except Exception, e:
+			print e
+	else:
+		return get_sentiment_textblob(text)
+
+def get_sentiment_textblob(text):
+	testimonial = TextBlob(text)
+	polarity = testimonial.sentiment.polarity
+	print polarity
+	if polarity > 0:
+		return 'positive',  "%.4f" % percentage_confidence(polarity)
+	elif polarity < 0:
+		return 'negative',  "%.4f" % percentage_confidence(polarity)
+	elif polarity == 0:
+		return 'nuteral', "%.4f" % percentage_confidence(polarity)
+
+def get_sentiment_info(text):
+	flag, confidence = classify2(text)
+	if confidence > 0.5:
+		sentiment = "Positive" if flag else "Negative"
+	else:
+		sentiment = "Neutral"
+	conf = "%.4f" % percentage_confidence(confidence)
 	return (sentiment, conf)
 
 @app.route('/')
@@ -76,7 +99,7 @@ def read_api():
 	text = request.form.get("txt", '')
 	text = text.replace('Telenor ', ' ')
 	web = request.form.get('web', False)
-	sentiment, confidence = get_sentiment_info(text, browser=web)
+	sentiment, confidence = get_sentiment_route(text, web=web)
 	result = {"sentiment": sentiment, "confidence": confidence}
 	#conn.incr(STATS_KEY + "_api_calls")
 	#conn.incr(STATS_KEY + today())
