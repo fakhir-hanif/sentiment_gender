@@ -16,6 +16,7 @@ from info import lang_detect_level3
 import logging
 import re
 from textblob import TextBlob
+from textblob.sentiments import NaiveBayesAnalyzer
 
 
 app = Flask(__name__)
@@ -32,26 +33,22 @@ def today():
 	return datetime.now().strftime('%Y-%m-%d')
 
 def get_sentiment_route(text, web=False):
-	if web == 'web':
-		return get_sentiment_browse(text)
-	elif web == 'facebook':
+	if web == 'facebook':
 		return  get_sentiment_facebook(text)
 	else:
-		return get_sentiment_info(text)
+		return get_sentiment_textblob(text)
 
-def get_sentiment_browse(text):
-	print "web"
-	logging.debug(' in browser ')
-	flag, confidence = classify3(text)
-	if confidence > 0.5:
-		sentiment = "Positive" if flag else "Negative"
-	else:
-		sentiment = "Neutral"
-	conf = "%.4f" % percentage_confidence(confidence)
-	return (sentiment, conf)
+# def get_sentiment_browse(text):
+# 	logging.debug(' in browser ')
+# 	flag, confidence = classify3(text)
+# 	if confidence > 0.5:
+# 		sentiment = "Positive" if flag else "Negative"
+# 	else:
+# 		sentiment = "Neutral"
+# 	conf = "%.4f" % percentage_confidence(confidence)
+# 	return (sentiment, conf)
 
 def get_sentiment_facebook(text):
-	print "facebook"
 	logging.debug(' in facebook ')
 	try:
 		response = requests.post('http://text-processing.com/api/sentiment/', data={'text': text})
@@ -68,16 +65,21 @@ def get_sentiment_facebook(text):
 	else:
 		return get_sentiment_textblob(text)
 
+
 def get_sentiment_textblob(text):
-	testimonial = TextBlob(text)
-	polarity = testimonial.sentiment.polarity
-	print polarity
-	if polarity > 0:
-		return 'positive',  "%.4f" % percentage_confidence(polarity)
-	elif polarity < 0:
-		return 'negative',  "%.4f" % percentage_confidence(polarity)
-	elif polarity == 0:
-		return 'nuteral', "%.4f" % percentage_confidence(polarity)
+	try:
+		testimonial = TextBlob(text)
+		polarity = testimonial.sentiment.polarity
+		print polarity
+		if polarity > 0:
+			return 'positive',  "%.4f" % percentage_confidence(polarity)
+		elif polarity < 0:
+			return 'negative',  "%.4f" % percentage_confidence(polarity)
+		elif polarity == 0:
+			return 'nuteral', "%.4f" % percentage_confidence(polarity)
+	except Exception, e:
+		logging.debug(' Exception Textblob ' + str(e))
+		return get_sentiment_info(text)
 
 def get_sentiment_info(text):
 	flag, confidence = classify2(text)
@@ -208,3 +210,43 @@ def lang_detection():
 			logging.debug('Error in level 2' + str(e))
 		result = lang_detect_level3(lang, gs)
 	return jsonify(result=result)
+
+#
+# @app.route('/api/comparison/', methods=["GET"])
+# @crossdomain(origin='*')
+# def comparison():
+# 	import pypyodbc
+# 	connection = pypyodbc.connect('Driver={SQL Server};'
+# 								  'Server=192.168.7.208;'
+# 								  'Database=Insight360_Outfitters;'
+# 								  'uid=nestleclearview;pwd=n3$tle')
+#
+# 	cursor = connection.cursor()
+# 	SQLCommand = ("SELECT [id], [message] FROM [Insight360_Outfitters].[dbo].[Staging_Facebook_Posts]")
+# 	Values = [2]
+# 	try:
+# 		cursor.execute(SQLCommand)
+# 		results = cursor.fetchall()
+# 	except Exception, e:
+# 		print str(e)
+#
+# 	print len(results)
+# 	response = []
+# 	for result in results:
+# 		sentiment = []
+# 		s, c = get_sentiment_facebook(result[1])
+# 		sentiment.append(s)
+# 		s1, c = get_sentiment_textblob(result[1])
+# 		sentiment.append(s1)
+# 		resp = requests.post('http://192.168.7.208:86/api/text/', data={
+# 			'txt': result[1], 'web': 'facebook'})
+# 		data = 0
+# 		if resp.status_code == 200:
+# 			data = json.loads(resp.content)
+# 			data = data['result']['sentiment']
+# 		sentiment.append(data)
+# 		response.append(sentiment)
+#
+# 	connection.close()
+#
+# 	return jsonify(result=response)
