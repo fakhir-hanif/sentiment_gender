@@ -99,13 +99,18 @@ def home():
 @crossdomain(origin='*')
 def read_api():
 	text = request.form.get("txt", '')
-	text = text.replace('Telenor ', ' ')
+	# text = text.replace('Telenor ', ' ')
 	web = request.form.get('web', False)
-	sentiment, confidence = get_sentiment_route(text, web=web)
+	translated = re.sub(r"http\S+", "", text)
+	translated = translated.replace('#', ' ')
+	#blob = TextBlob(translated)
+	# if blob.detect_language() != 'en':
+	# 	translated = blob.translate(to='en')
+	# print translated
+	sentiment, confidence = get_sentiment_route(translated, web=web)
 	result = {"sentiment": sentiment, "confidence": confidence}
 	#conn.incr(STATS_KEY + "_api_calls")
 	#conn.incr(STATS_KEY + today())
-	print result
 	return jsonify(result=result)
 
 @app.route('/web/text/', methods=["POST"])
