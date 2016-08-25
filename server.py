@@ -199,7 +199,6 @@ def lang_detection():
 	# print hash_at_tags
 	text_list = lang.replace('#', ' ').split()
 	lang = ' '.join([i for i in text_list if len(i) < 20 ])
-	print lang
 	if len(lang):
 		gs = goslate.Goslate()  # will use this object in all services.
 		# TextBlob free service powered by google

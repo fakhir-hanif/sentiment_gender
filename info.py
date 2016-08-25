@@ -127,22 +127,28 @@ def feature_selection_trials():
 def lang_detect_level1(lang, gs):
     lang_id = TextBlob(lang).detect_language()  # lang_id = en
     if lang_id == 'hi':
-        lang_id = 'rd'
-    return {'language_id': lang_id, 'language': gs.get_languages()[lang_id]}
+        l_id = 'rd'
+    else:
+        l_id = lang_id
+    return {'language_id': l_id, 'language': gs.get_languages()[lang_id]}
 
 def lang_detect_level2(lang, gs):
     lang_id = detectlanguage.detect(lang)
     # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
     if lang_id[0]['language'] == 'hi':
-        lang_id[0]['language'] = 'rd'
-    return {'language_id': lang_id[0]['language'], 'language': gs.get_languages()[lang_id[0]['language']]}
+        l_id = 'rd'
+    else:
+        l_id = lang_id[0]['language']
+    return {'language_id': l_id, 'language': gs.get_languages()[lang_id[0]['language']]}
 
 def lang_detect_level3(lang, gs):
     # langid service, source code = https://github.com/saffsd/langid.py
     res = langid.classify(lang)
     if res[0] == 'hi':
-        res[0] = 'rd'
-    return {'language_id': res[0], 'language': gs.get_languages()[res[0]]}
+        l_id = 'rd'
+    else:
+        l_id = res[0]
+    return {'language_id': l_id, 'language': gs.get_languages()[res[0]]}
 
 if __name__ == '__main__':
     feature_selection_trials()
