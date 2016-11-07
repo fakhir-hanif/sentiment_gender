@@ -209,6 +209,7 @@ def lang_detection():
 			logging.debug('Error in level 1' + str(e))
 		# Paid service, Free 5000 records per day
 		try:
+
 			result = lang_detect_level2(lang, gs)
 			return jsonify(result=result)
 		except Exception, e:

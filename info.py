@@ -133,13 +133,17 @@ def lang_detect_level1(lang, gs):
     return {'language_id': l_id, 'language': gs.get_languages()[lang_id]}
 
 def lang_detect_level2(lang, gs):
-    lang_id = detectlanguage.detect(lang)
-    # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-    if lang_id[0]['language'] == 'hi':
-        l_id = 'rd'
+    status = detectlanguage.user_status()
+    if status['status'] == 'ACTIVE':
+        lang_id = detectlanguage.detect(lang)
+        # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
+        if lang_id[0]['language'] == 'hi':
+            l_id = 'rd'
+        else:
+            l_id = lang_id[0]['language']
+        return {'language_id': l_id, 'language': gs.get_languages()[lang_id[0]['language']]}
     else:
-        l_id = lang_id[0]['language']
-    return {'language_id': l_id, 'language': gs.get_languages()[lang_id[0]['language']]}
+        raise Exception('Account Suspended')
 
 def lang_detect_level3(lang, gs):
     # langid service, source code = https://github.com/saffsd/langid.py
