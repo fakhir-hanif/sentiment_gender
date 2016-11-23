@@ -135,8 +135,9 @@ class LangDetect():
         self.host = 'https://translate.yandex.net'
         self.api_key = TRANS_KEY
         self.trans_to = 'en'
+        self.trans_from = ''
         self.url_detect = '/api/v1.5/tr.json/detect?hint=en,de,ur&key=%s' % self.api_key
-        self.url_trans = '/api/v1.5/tr.json/translate?lang=hi-en&key=%s' % self.api_key
+        self.url_trans = '/api/v1.5/tr.json/translate?lang=%s%s&key=%s' % (self.trans_from, self.trans_to, self.api_key)
         self.headers = {'content-type': 'application/x-www-form-urlencoded'}
 
     def detect(self, text):
@@ -148,7 +149,9 @@ class LangDetect():
             raise Exception("Yandex did not return status code 200")
         return lang_id
 
-    def translate(self, text):
+    def translate(self, text, t_from):
+        self.trans_from = t_from + '-'
+        print self.url_trans
         response = requests.post(
             self.host + self.url_trans, data={'text': text}, headers=self.headers
         )

@@ -110,8 +110,9 @@ def read_api():
 	translated = translated.replace('#', ' ')
 	print translated
 	lang = LangDetect()
+	lang_d = lang.detect(translated)
 	if lang.detect(translated) != 'en':
-		translated = lang.translate(translated)
+		translated = lang.translate(translated, lang_d)
 	print translated
 	#blob = TextBlob(translated)
 	# if blob.detect_language() != 'en':
