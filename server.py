@@ -16,6 +16,7 @@ from info import lang_detect_level3
 import logging
 import re
 from textblob import TextBlob
+from info import LangDetect
 from textblob.sentiments import NaiveBayesAnalyzer
 
 
@@ -102,7 +103,16 @@ def read_api():
 	# text = text.replace('Telenor ', ' ')
 	web = request.form.get('web', False)
 	translated = re.sub(r"http\S+", "", text)
+	try:
+		translated = re.sub("\$(\w+) ", "", text)
+	except Exception, e:
+		print str(e)
 	translated = translated.replace('#', ' ')
+	print translated
+	lang = LangDetect()
+	if lang.detect(translated) != 'en':
+		translated = lang.translate(translated)
+	print translated
 	#blob = TextBlob(translated)
 	# if blob.detect_language() != 'en':
 	# 	translated = blob.translate(to='en')
@@ -193,6 +203,7 @@ def gender_detection():
 def lang_detection():
 	result = {'language_id': 0, 'language': 'Not Detected'}
 	lang = request.form.get('txt', '')
+	lang = re.sub(r"http\S+", "", lang)  # Links Removed
 	# removing hash tags
 	# hash_at_tags = re.findall(r'(?i)\#\w+', lang)
 	# hash_at_tags += re.findall(r'(?i)\@\w+', lang)
@@ -206,6 +217,7 @@ def lang_detection():
 			result = lang_detect_level1(lang, gs)
 			return jsonify(result=result)
 		except Exception, e:
+			print str(e)
 			logging.debug('Error in level 1' + str(e))
 		# Paid service, Free 5000 records per day
 		try:

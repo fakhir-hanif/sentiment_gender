@@ -1,21 +1,35 @@
 {% extends "index.html" %}
 {% block content %}
-	<p>
-		This tool works by examining individual words and short sequences of words (n-grams) and comparing
-		them with a probability model. The probability model is built on a prelabeled test set
-		of IMDb movie reviews. It can also detect negations in phrases, i.e, the phrase "not bad" will be
-		classified as positive despite having two individual words with a negative sentiment.
-	</p>
+	<div class="page-header"></div>
+	<div class="panel panel-default">
+	<div class="panel-heading"><h4>About</h4></div>
+		<div class="panel-body">
+			<p>
+				This tool examining words, and sentences to find the neggative and possitive with a
+				Probability model. The probability model is built on a prelabeled test set of IMDb movie reviews.
+				This tool also detects either the author is male of female. This tool also equipped
+				to detect the language and translate it to english so the analysis should provide maximum
+				accuracy.
+				This tool is the inhanced version of the <b>vivekn</b> web sentiment analysis. you can find this
+				<a href="https://github.com/vivekn/sentiment-web">here</a>
+			</p>
 
-	<p>
-		You can read more about the details of the model in <a href="http://arxiv.org/abs/1305.6143"> this paper </a>.
-		The code for the web application and the training module is open source and <a href="https://github.com/vivekn/sentiment-web"> available on Github </a>. 
-	</p>
+			<p>
+				You can read more about the details of the model in <a href="http://arxiv.org/abs/1305.6143"> this paper </a>.
+				The code for the web application and the training module is open source and <a href="https://github.com/fakhir-hanif/sentiment_gender"> available on Github </a>.
+			</p>
 
-	<p>
-		I've also provided an API for this tool, details on how to use it are on 
-		<a href="{{ url_for('api') }}"> this page </a>
-	</p>
+			<p>
+				I've also provided an API for this tool, details on how to use it are on 
+				<a href="/docs/api/"> this page </a>
+			</p>
+
+			<p>
+				This tool's translation is powered by <a href="https://translate.yandex.com/">Yandex</a>
+			</p>
+		  </div>
+	</div>
+
 {% endblock %}
 {% block scripts %}
 {% endblock %}

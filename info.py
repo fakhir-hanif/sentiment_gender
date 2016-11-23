@@ -5,7 +5,7 @@ from collections import Counter
 import os
 import pickle
 import detectlanguage
-from config import API_KEY
+from config import API_KEY, TRANS_KEY
 from textblob import TextBlob
 import langid
 import logging
@@ -14,9 +14,11 @@ from pos import pos
 from neg import neg
 from pos2 import pos2
 from neg2 import neg2
+import requests
 
 
 detectlanguage.configuration.api_key = API_KEY
+
 
 class MyDict(dict):
     def __getitem__(self, key):
@@ -67,6 +69,7 @@ def negate_sequence(text):
 
     return result
 
+
 def classify2(text):
     """
     For classification from pretrained data
@@ -95,6 +98,7 @@ def classify3(text):
     neg_prob = sum(log((neg2[word] + 1) / (2 * totals[1])) for word in words)
     return (pos_prob > neg_prob, abs(pos_prob - neg_prob))
 
+
 def classify_demo(text):
     words = set(word for word in negate_sequence(text) if word in pos or word in neg)
     if (len(words) == 0): 
@@ -111,6 +115,7 @@ def classify_demo(text):
 
     print ("Positive" if pprob > nprob else "Negative"), "log-diff = %.9f" % abs(pprob - nprob)
 
+
 def feature_selection_trials():
     """
     Select top k features. Vary k and plot data
@@ -124,12 +129,55 @@ def feature_selection_trials():
     #     pos2, neg2, totals2 = pickle.load(open(FDATA_FILE2))
     return
 
+
+class LangDetect():
+    def __init__(self):
+        self.host = 'https://translate.yandex.net'
+        self.api_key = TRANS_KEY
+        self.trans_to = 'en'
+        self.url_detect = '/api/v1.5/tr.json/detect?hint=en,de,ur&key=%s' % self.api_key
+        self.url_trans = '/api/v1.5/tr.json/translate?lang=hi-en&key=%s' % self.api_key
+        self.headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+    def detect(self, text):
+        response = requests.post(
+            self.host + self.url_detect, data={'text': text}, headers=self.headers)
+        if response.status_code == 200:
+            lang_id = json.loads(response.text)['lang'].split('-')[0]
+        else:
+            raise Exception("Yandex did not return status code 200")
+        return lang_id
+
+    def translate(self, text):
+        response = requests.post(
+            self.host + self.url_trans, data={'text': text}, headers=self.headers
+        )
+        if response.status_code == 200:
+            trans_text = json.loads(response.text)['text'][0]
+        else:
+            raise Exception("Yandex did not return status code 200")
+        return trans_text
+
+
+# def lang_detect_level1(lang, gs):
+#     lang_id = TextBlob(lang).detect_language()  # lang_id = en
+#     if lang_id in ['en', 'ar', 'bn', 'hi', 'ur']:
+#         if lang_id == 'hi':
+#             l_id = 'rd'
+#         else:
+#             l_id = lang_id
+#     else:
+#         l_id = 'na'
+#     return {'language_id': l_id, 'language': gs.get_languages()[lang_id]}
 def lang_detect_level1(lang, gs):
-    lang_id = TextBlob(lang).detect_language()  # lang_id = en
-    if lang_id == 'hi':
-        l_id = 'rd'
+    lang_id = LangDetect().detect(lang)
+    if lang_id in ['en', 'ar', 'bn', 'hi', 'ur']:
+        if lang_id == 'hi':
+            l_id = 'rd'
+        else:
+            l_id = lang_id
     else:
-        l_id = lang_id
+        l_id = 'na'
     return {'language_id': l_id, 'language': gs.get_languages()[lang_id]}
 
 def lang_detect_level2(lang, gs):
@@ -137,25 +185,33 @@ def lang_detect_level2(lang, gs):
     if status['status'] == 'ACTIVE':
         lang_id = detectlanguage.detect(lang)
         # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-        if lang_id[0]['language'] == 'hi':
-            l_id = 'rd'
+        if lang_id[0]['language'] in ['en', 'ar', 'bn', 'hi', 'ur']:
+            if lang_id[0]['language'] == 'hi':
+                l_id = 'rd'
+            else:
+                l_id = lang_id[0]['language']
         else:
-            l_id = lang_id[0]['language']
+            l_id = 'na'
         return {'language_id': l_id, 'language': gs.get_languages()[lang_id[0]['language']]}
     else:
         raise Exception('Account Suspended')
 
+
 def lang_detect_level3(lang, gs):
     # langid service, source code = https://github.com/saffsd/langid.py
     res = langid.classify(lang)
-    if res[0] == 'hi':
-        l_id = 'rd'
+    if res[0] in ['en', 'ar', 'bn', 'hi', 'ur']:
+        if res[0] == 'hi':
+            l_id = 'rd'
+        else:
+            l_id = res[0]
     else:
-        l_id = res[0]
+        l_id = 'na'
     return {'language_id': l_id, 'language': gs.get_languages()[res[0]]}
 
 if __name__ == '__main__':
     feature_selection_trials()
+
 
 def setup():
     feature_selection_trials()

@@ -5,3 +5,5 @@ langid
 goslate
 hammock
 detectlanguage
+wfastcgi
+requests
