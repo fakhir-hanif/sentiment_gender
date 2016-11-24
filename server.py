@@ -105,11 +105,11 @@ def read_api():
 	translated = re.sub(r"http\S+", "", text)
 	translated = re.sub("\$(\w+) ", "", text)
 	translated = translated.replace('#', ' ')
-	lang = LangDetect()
+	lang = LangDetect(translated)
 	try:
-		lang_d = lang.detect(translated)
-		if lang.detect(translated) != 'en':
-			translated = lang.translate(translated, lang_d)
+		lang_d = lang.detect()
+		if lang_d != 'en':
+			translated = lang.translate(lang_d)
 	except Exception, e:
 		print str(e)
 		logging.debug(' Exception Yandex ' + str(e))

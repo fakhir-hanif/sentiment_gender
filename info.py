@@ -5,7 +5,7 @@ from collections import Counter
 import os
 import pickle
 import detectlanguage
-from config import API_KEY, TRANS_KEY
+from config import API_KEY, TRANS_KEY, TRANS_KEY2
 from textblob import TextBlob
 import langid
 import logging
@@ -131,7 +131,7 @@ def feature_selection_trials():
 
 
 class LangDetect():
-    def __init__(self):
+    def __init__(self, text):
         self.host = 'https://translate.yandex.net'
         self.api_key = TRANS_KEY
         self.trans_to = 'en'
@@ -139,21 +139,36 @@ class LangDetect():
         self.url_detect = '/api/v1.5/tr.json/detect?hint=en,de,ur&key=%s' % self.api_key
         self.url_trans = '/api/v1.5/tr.json/translate?lang=%s%s&key=%s' % (self.trans_from, self.trans_to, self.api_key)
         self.headers = {'content-type': 'application/x-www-form-urlencoded'}
+        self.text = text
 
-    def detect(self, text):
+    def change_api_key(self):
+        self.api_key = TRANS_KEY2
+        self.url_detect = '/api/v1.5/tr.json/detect?hint=en,de,ur&key=%s' % self.api_key
+        self.url_trans = '/api/v1.5/tr.json/translate?lang=%s%s&key=%s' % (self.trans_from, self.trans_to, self.api_key)
+
+    def connect(self):
         response = requests.post(
-            self.host + self.url_detect, data={'text': text}, headers=self.headers)
+            self.host + self.url_detect, data={'text': self.text}, headers=self.headers)
+        if response.status_code !=200:
+            raise Exception('Error! Yandex')
+        return response
+
+    def detect(self):
+        try:
+            response = self.connect()
+        except Exception, e:
+            self.change_api_key()
+            response = self.connect()
         if response.status_code == 200:
             lang_id = json.loads(response.text)['lang'].split('-')[0]
         else:
             raise Exception("Yandex did not return status code 200")
         return lang_id
 
-    def translate(self, text, t_from):
+    def translate(self, t_from):
         self.trans_from = t_from + '-'
-        print self.url_trans
         response = requests.post(
-            self.host + self.url_trans, data={'text': text}, headers=self.headers
+            self.host + self.url_trans, data={'text': self.text}, headers=self.headers
         )
         if response.status_code == 200:
             trans_text = json.loads(response.text)['text'][0]
