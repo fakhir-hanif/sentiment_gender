@@ -7,3 +7,4 @@ hammock
 detectlanguage
 wfastcgi
 requests
+textblob

@@ -103,17 +103,16 @@ def read_api():
 	# text = text.replace('Telenor ', ' ')
 	web = request.form.get('web', False)
 	translated = re.sub(r"http\S+", "", text)
+	translated = re.sub("\$(\w+) ", "", text)
+	translated = translated.replace('#', ' ')
+	lang = LangDetect()
 	try:
-		translated = re.sub("\$(\w+) ", "", text)
+		lang_d = lang.detect(translated)
+		if lang.detect(translated) != 'en':
+			translated = lang.translate(translated, lang_d)
 	except Exception, e:
 		print str(e)
-	translated = translated.replace('#', ' ')
-	print translated
-	lang = LangDetect()
-	lang_d = lang.detect(translated)
-	if lang.detect(translated) != 'en':
-		translated = lang.translate(translated, lang_d)
-	print translated
+		logging.debug(' Exception Yandex ' + str(e))
 	#blob = TextBlob(translated)
 	# if blob.detect_language() != 'en':
 	# 	translated = blob.translate(to='en')
