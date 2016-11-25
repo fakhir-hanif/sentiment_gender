@@ -17,6 +17,7 @@ from neg2 import neg2
 import requests
 
 
+
 detectlanguage.configuration.api_key = API_KEY
 
 
@@ -188,12 +189,16 @@ class LangDetect():
 #         l_id = 'na'
 #     return {'language_id': l_id, 'language': gs.get_languages()[lang_id]}
 def lang_detect_level1(lang, gs):
-    lang_id = LangDetect().detect(lang)
-    if lang_id in ['en', 'ar', 'bn', 'hi', 'ur']:
-        if lang_id == 'hi':
-            l_id = 'rd'
-        else:
-            l_id = lang_id
+    lang_id = LangDetect(lang).detect()
+    in_english = True
+    try:
+        lang.decode('ascii')
+    except:
+        in_english = False
+    if lang_id in ['en', 'ar', 'bn', 'ur', 'nl']:
+        l_id = lang_id
+    elif in_english:
+        l_id = 'rd'
     else:
         l_id = 'na'
     return {'language_id': l_id, 'language': gs.get_languages()[lang_id]}
@@ -201,13 +206,17 @@ def lang_detect_level1(lang, gs):
 def lang_detect_level2(lang, gs):
     status = detectlanguage.user_status()
     if status['status'] == 'ACTIVE':
+        in_english = True
+        try:
+            lang.decode('ascii')
+        except:
+            in_english = False
         lang_id = detectlanguage.detect(lang)
         # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-        if lang_id[0]['language'] in ['en', 'ar', 'bn', 'hi', 'ur']:
-            if lang_id[0]['language'] == 'hi':
-                l_id = 'rd'
-            else:
-                l_id = lang_id[0]['language']
+        if lang_id[0]['language'] in ['en', 'ar', 'bn', 'ur', 'nl']:
+            l_id = lang_id[0]['language']
+        elif in_english:
+            l_id = 'rd'
         else:
             l_id = 'na'
         return {'language_id': l_id, 'language': gs.get_languages()[lang_id[0]['language']]}
@@ -218,11 +227,15 @@ def lang_detect_level2(lang, gs):
 def lang_detect_level3(lang, gs):
     # langid service, source code = https://github.com/saffsd/langid.py
     res = langid.classify(lang)
-    if res[0] in ['en', 'ar', 'bn', 'hi', 'ur']:
-        if res[0] == 'hi':
-            l_id = 'rd'
-        else:
-            l_id = res[0]
+    in_english = True
+    try:
+        lang.decode('ascii')
+    except:
+        in_english = False
+    if res[0] in ['en', 'ar', 'bn', 'ur', 'nl', 'es']:
+        l_id = res[0]
+    elif in_english:
+        l_id = 'rd'
     else:
         l_id = 'na'
     return {'language_id': l_id, 'language': gs.get_languages()[res[0]]}

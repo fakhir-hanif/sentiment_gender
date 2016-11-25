@@ -103,7 +103,7 @@ def read_api():
 	# text = text.replace('Telenor ', ' ')
 	web = request.form.get('web', False)
 	translated = re.sub(r"http\S+", "", text)
-	translated = re.sub("\$(\w+) ", "", text)
+	translated = re.sub("\@(\w+) ", "", translated)
 	translated = translated.replace('#', ' ')
 	lang = LangDetect(translated)
 	try:
@@ -201,15 +201,18 @@ def gender_detection():
 @app.route('/api/lang/', methods=["POST"])
 @crossdomain(origin='*')
 def lang_detection():
-	result = {'language_id': 0, 'language': 'Not Detected'}
+	result = {'language_id': 'na', 'language': 'Not Detected'}
 	lang = request.form.get('txt', '')
 	lang = re.sub(r"http\S+", "", lang)  # Links Removed
+	lang = re.sub("\@(\w+)", "", lang)
+	lang = re.sub("\#(\w+)", "", lang)
 	# removing hash tags
 	# hash_at_tags = re.findall(r'(?i)\#\w+', lang)
 	# hash_at_tags += re.findall(r'(?i)\@\w+', lang)
 	# print hash_at_tags
 	text_list = lang.replace('#', ' ').split()
 	lang = ' '.join([i for i in text_list if len(i) < 20 ])
+	lang = lang.lower()
 	if len(lang):
 		gs = goslate.Goslate()  # will use this object in all services.
 		# TextBlob free service powered by google
@@ -226,7 +229,10 @@ def lang_detection():
 			return jsonify(result=result)
 		except Exception, e:
 			logging.debug('Error in level 2' + str(e))
-		result = lang_detect_level3(lang, gs)
+		try:
+			result = lang_detect_level3(lang, gs)
+		except Exception, e:
+			print str(e)
 	return jsonify(result=result)
 
 #
