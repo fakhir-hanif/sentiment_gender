@@ -195,7 +195,7 @@ def lang_detect_level1(lang, gs):
         lang.decode('ascii')
     except:
         in_english = False
-    if lang_id in ['en', 'ar', 'bn', 'ur', 'nl']:
+    if lang_id in ['en', 'ar', 'bn', 'ur']:
         l_id = lang_id
     elif in_english:
         l_id = 'rd'
@@ -213,7 +213,7 @@ def lang_detect_level2(lang, gs):
             in_english = False
         lang_id = detectlanguage.detect(lang)
         # e.g [{'isReliable': True, 'confidence': 12.04, 'language': 'es'}]
-        if lang_id[0]['language'] in ['en', 'ar', 'bn', 'ur', 'nl']:
+        if lang_id[0]['language'] in ['en', 'ar', 'bn', 'ur']:
             l_id = lang_id[0]['language']
         elif in_english:
             l_id = 'rd'
@@ -232,7 +232,7 @@ def lang_detect_level3(lang, gs):
         lang.decode('ascii')
     except:
         in_english = False
-    if res[0] in ['en', 'ar', 'bn', 'ur', 'nl', 'es']:
+    if res[0] in ['en', 'ar', 'bn', 'ur']:
         l_id = res[0]
     elif in_english:
         l_id = 'rd'

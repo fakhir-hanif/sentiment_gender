@@ -37,7 +37,8 @@ def get_sentiment_route(text, web=False):
 	if web == 'facebook':
 		return  get_sentiment_facebook(text)
 	else:
-		return get_sentiment_textblob(text)
+		#  return get_sentiment_textblob(text)
+		return get_sentiment_info(text)
 
 # def get_sentiment_browse(text):
 # 	logging.debug(' in browser ')
@@ -127,7 +128,7 @@ def read_api():
 @crossdomain(origin='*')
 def evaldata():
 	text = request.form.get("txt")
-	result, confidence = get_sentiment_info(text)
+	result, confidence = get_sentiment_route(text)
 	#conn.incr(STATS_KEY + "_web_calls")
 	#conn.incr(STATS_KEY + today())
 	return jsonify(result=result, confidence=confidence, sentence=text)
