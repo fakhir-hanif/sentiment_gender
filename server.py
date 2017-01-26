@@ -128,6 +128,17 @@ def read_api():
 @crossdomain(origin='*')
 def evaldata():
 	text = request.form.get("txt")
+	text = re.sub(r"http\S+", "", text)
+	text = re.sub("\@(\w+)", "", text)
+	text = text.replace('#', ' ')
+	lang = LangDetect(text)
+	try:
+		lang_d = lang.detect()
+		if lang_d != 'en':
+			text = lang.translate(lang_d)
+	except Exception, e:
+		print str(e)
+		logging.debug(' Exception Yandex ' + str(e))
 	result, confidence = get_sentiment_route(text)
 	#conn.incr(STATS_KEY + "_web_calls")
 	#conn.incr(STATS_KEY + today())
