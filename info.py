@@ -67,7 +67,7 @@ def negate_sequence(text):
 
         if any(c in word for c in delims):
             negation = False
-
+    print result
     return result
 
 
@@ -81,7 +81,7 @@ def classify2(text):
     # for word in words:
     #     print "p: ", word, ": ", pos[word]
     #     print "n: ", word, ": ", neg[word]
-    # print words
+    print words
     pos_prob = sum(log((pos[word] + 1) / (2 * totals[0])) for word in words)
     neg_prob = sum(log((neg[word] + 1) / (2 * totals[1])) for word in words)
     return (pos_prob > neg_prob, abs(pos_prob - neg_prob))

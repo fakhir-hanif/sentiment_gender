@@ -65,14 +65,14 @@ def get_sentiment_facebook(text):
 		except Exception, e:
 			print e
 	else:
-		return get_sentiment_textblob(text)
+		# return get_sentiment_textblob(text)
+		return get_sentiment_info(text)
 
 
 def get_sentiment_textblob(text):
 	try:
 		testimonial = TextBlob(text)
 		polarity = testimonial.sentiment.polarity
-		print polarity
 		if polarity > 0:
 			return 'positive',  "%.4f" % percentage_confidence(polarity)
 		elif polarity < 0:
@@ -188,7 +188,6 @@ def gender_detection():
 		return jsonify(result=result)
 	else:
 		names = first_name.split(' ')
-		print names, "names"
 		for name in names: # Loop will continue until gender detected or it is found in our dict.
 			try:
 				# Check if the gender is in our dictionary
