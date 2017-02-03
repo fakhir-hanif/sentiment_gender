@@ -18,6 +18,7 @@ import re
 from textblob import TextBlob
 from info import LangDetect
 from textblob.sentiments import NaiveBayesAnalyzer
+import pickle
 
 
 app = Flask(__name__)
@@ -202,9 +203,13 @@ def gender_detection():
 						break
 				if gender.lower() == 'male' or gender.lower() == 'female':
 					result.update({'status': True, 'gender': gender})
+					with open('gender_dict.pickle', 'wb') as gender_update:
+						pickle.dump({name.lower(): gender}, gender_update, protocol=pickle.HIGHEST_PROTOCOL)
+					gender_dict[name.lower()] = gender
 					break
 			except Exception, e:
 				print str(e)
+				logging.debug(' Exception Gender ' + str(e))
 				result.update({'status': False, 'gender': 'Unknown'})
 		return jsonify(result=result)
 
