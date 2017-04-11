@@ -13,6 +13,7 @@ import goslate
 from info import lang_detect_level1
 from info import lang_detect_level2
 from info import lang_detect_level3
+from info import bypass_algorithm
 import logging
 import re
 from textblob import TextBlob
@@ -36,7 +37,7 @@ def today():
 
 def get_sentiment_route(text, web=False):
 	if web == 'facebook':
-		return  get_sentiment_facebook(text)
+		return  get_sentiment_info(text)
 	else:
 		#  return get_sentiment_textblob(text)
 		return get_sentiment_info(text)
@@ -103,13 +104,20 @@ def home():
 def read_api():
 	text = request.form.get("txt", '')
 	# text = text.replace('Telenor ', ' ')
+	is_negative = False
 	web = request.form.get('web', False)
 	translated = re.sub(r"http\S+", "", text)
-	translated = re.sub("\@(\w+) ", "", translated)
 	translated = translated.replace('#', ' ')
 	lang = LangDetect(translated)
+
+	if bypass_algorithm(translated):
+		is_negative = True
+
+	translated = re.sub("\@(\w+) ", "", translated)
 	try:
-		lang_d = lang.detect()
+		#lang_d = lang.detect()
+		# Translation stopped!
+		lang_d = 'en'
 		if lang_d != 'en':
 			translated = lang.translate(lang_d)
 	except Exception, e:
@@ -120,6 +128,12 @@ def read_api():
 	# 	translated = blob.translate(to='en')
 	# print translated
 	sentiment, confidence = get_sentiment_route(translated, web=web)
+	if translated.startswith("RT ") and (sentiment == 'Negative' or is_negative):
+		sentiment = 'Neutral'
+	elif is_negative:
+		sentiment = 'Negative'
+	# else:
+	# 	sentiment, confidence = "Negative", "50.0"
 	result = {"sentiment": sentiment, "confidence": confidence}
 	#conn.incr(STATS_KEY + "_api_calls")
 	#conn.incr(STATS_KEY + today())
@@ -134,7 +148,9 @@ def evaldata():
 	text = text.replace('#', ' ')
 	lang = LangDetect(text)
 	try:
-		lang_d = lang.detect()
+		# lang_d = lang.detect()
+		# Translation stopped!
+		lang_d = 'en'
 		if lang_d != 'en':
 			text = lang.translate(lang_d)
 	except Exception, e:
@@ -203,9 +219,9 @@ def gender_detection():
 						break
 				if gender.lower() == 'male' or gender.lower() == 'female':
 					result.update({'status': True, 'gender': gender})
-					with open('gender_dict.pickle', 'wb') as gender_update:
-						pickle.dump({name.lower(): gender}, gender_update, protocol=pickle.HIGHEST_PROTOCOL)
-					gender_dict[name.lower()] = gender
+					with open('gender_dict.pickle', 'a+b') as gender_update:
+						pickle.dump({name.lower(): gender}, gender_update)
+						gender_update.close()
 					break
 			except Exception, e:
 				print str(e)

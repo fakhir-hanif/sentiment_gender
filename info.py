@@ -5,7 +5,7 @@ from collections import Counter
 import os
 import pickle
 import detectlanguage
-from config import API_KEY, TRANS_KEY, TRANS_KEY2
+from config import API_KEY, TRANS_KEY, TRANS_KEY2, NEG_WORDS, NEG_SUB_WORDS
 from textblob import TextBlob
 import langid
 import logging
@@ -239,6 +239,24 @@ def lang_detect_level3(lang, gs):
     else:
         l_id = 'na'
     return {'language_id': l_id, 'language': gs.get_languages()[res[0]]}
+
+
+def bypass_algorithm(text):
+    words = text.split()
+    words = [word.lower() for word in words]
+    text = ' '.join(words)
+    print words
+    print text
+    intersects = set(NEG_WORDS) & set(words)
+    if not intersects:
+        for word in NEG_SUB_WORDS:
+            if text.find(word) >= 0:
+                print word
+                return True
+        return False
+    else:
+        return True
+
 
 if __name__ == '__main__':
     feature_selection_trials()
